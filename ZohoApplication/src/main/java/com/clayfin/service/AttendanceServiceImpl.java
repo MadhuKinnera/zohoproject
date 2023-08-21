@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
@@ -15,6 +16,7 @@ import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
 
+@Service
 public class AttendanceServiceImpl implements AttendanceService {
 
 	@Autowired
