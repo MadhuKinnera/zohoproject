@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,11 +36,9 @@ public class Employee {
 
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
-	
 
 	@Enumerated(EnumType.STRING)
 	private RoleType role;
-
 
 	@ManyToOne
 	private Employee manager;
@@ -60,4 +59,10 @@ public class Employee {
 	@OneToMany(mappedBy = "employee")
 	private List<Task> tasks;
 
+	@OneToMany(mappedBy = "employee")
+	@JsonIgnore
+	private List<RegularizationRequest> reguralizations;
+
+	@ElementCollection
+	private List<String> skillSet;
 }

@@ -101,7 +101,7 @@ public class AttendanceController {
 
 		var generalResponse = new GeneralResponse();
 
-		generalResponse.setMessage("Reguralization Success " + employeeId);
+		generalResponse.setMessage("Reguralization Success with Id " + employeeId);
 		generalResponse.setData(attendanceService.regularize(employeeId, reguralizeDTO.getDate(),
 				reguralizeDTO.getFromTime(), reguralizeDTO.getToTime()));
 

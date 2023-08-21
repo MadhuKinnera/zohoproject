@@ -52,8 +52,11 @@ public class RepoHelper {
 
 		Duration duration = Duration.between(fromTime, toTime);
 
-		int hours = (int) duration.toHours();
-		int minutes = (int) duration.toMinutes();
+		int hours = (int) duration.toHoursPart();
+		int minutes = (int) duration.toMinutesPart();
+		
+		System.out.println("Hours :"+ hours);
+		System.out.println("Minutes : "+minutes);
 
 		return LocalTime.of(hours, minutes);
 	}

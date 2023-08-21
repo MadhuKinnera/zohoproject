@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class ReguralizeDTO {
+public class RegularizeDTO {
 
 	private LocalDate date;
 	private LocalDateTime fromTime;

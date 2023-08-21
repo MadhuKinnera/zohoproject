@@ -52,6 +52,19 @@ public class GlobalExceptionHandler {
 
 	}
 
+	@ExceptionHandler(RegularizationException.class)
+	public ResponseEntity<ErrorDetails> regularizationExceptionHandler(RegularizationException e, WebRequest req) {
+
+		ErrorDetails ed = new ErrorDetails();
+
+		ed.setTimestamp(LocalDateTime.now());
+		ed.setMessage(e.getMessage());
+		ed.setDescription(req.getDescription(false));
+
+		return new ResponseEntity<>(ed, HttpStatus.BAD_REQUEST);
+
+	}
+
 	@ExceptionHandler(AttendanceException.class)
 	public ResponseEntity<ErrorDetails> attendanceExceptionHandler(AttendanceException e, WebRequest req) {
 

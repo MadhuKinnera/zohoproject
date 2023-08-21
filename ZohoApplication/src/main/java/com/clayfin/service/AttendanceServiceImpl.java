@@ -76,15 +76,17 @@ public class AttendanceServiceImpl implements AttendanceService {
 	public Attendance regularize(Integer employeeId, LocalDate date, LocalDateTime fromTime, LocalDateTime toTime)
 			throws AttendanceException, EmployeeException {
 
-		Integer hours = toTime.getHour() - fromTime.getHour();
-
+		LocalTime spentHours = repoHelper.findTimeBetweenTimestamps(fromTime, toTime);
+		 
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
 
-		if (hours > 2)
+		if (spentHours.getHour() > 2)
 			throw new AttendanceException(Constants.NOT_REGURALIZABLE);
 
 		List<Attendance> alreadyPresentAttendance = getAttendanceByDateAndEmployeeId(date, employeeId);
+		
+		System.out.println(alreadyPresentAttendance.size()+"  attendances Found ");
 
 		for (int i = 0; i < alreadyPresentAttendance.size() - 1; i++) {
 			if (alreadyPresentAttendance.get(i).getCheckOutTimestamp().isBefore(fromTime)) {
@@ -98,7 +100,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 							attendance.getCheckOutTimestamp());
 
 					attendance.setSpentHours(spentTime);
-					return attendance;
+					return attendanceRepo.save(attendance);
 				} else {
 					Attendance nextAttendance = alreadyPresentAttendance.get(i + 1);
 					if (nextAttendance.getCheckInTimestamp().isAfter(toTime)) {
@@ -112,7 +114,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 								attendance.getCheckOutTimestamp());
 
 						attendance.setSpentHours(spentTime);
-						return attendance;
+						return attendanceRepo.save(attendance);
 
 					} else {
 						throw new AttendanceException("Attendance Time is Overlapping");
@@ -121,7 +123,12 @@ public class AttendanceServiceImpl implements AttendanceService {
 			}
 		}
 
-		throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND);
+		if(alreadyPresentAttendance.isEmpty())
+		    throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND);
+		else
+			throw new AttendanceException("Cannot Reguralize the for Given Timings");
+		
+		
 
 	}
 
@@ -137,7 +144,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
 
-		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByEmployeeEmployeeIdDesc(employeeId);
+		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByCheckInTimestampDesc(employeeId);
+		
+		if(lastAttendance!=null && lastAttendance.getCheckOutTimestamp()==null)
+			throw new AttendanceException("CheckOut First To Check In");
 
 		Attendance attendance = new Attendance();
 
