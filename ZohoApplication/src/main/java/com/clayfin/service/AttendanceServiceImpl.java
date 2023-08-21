@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
@@ -15,6 +16,7 @@ import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
 
+@Service
 public class AttendanceServiceImpl implements AttendanceService {
 
 	@Autowired
@@ -29,15 +31,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 	@Override
 	public List<Attendance> getAttendanceByDateAndEmployeeId(LocalDate date, Integer employeeId)
 			throws EmployeeException, AttendanceException {
-
 		List<Attendance> attendances = attendanceRepo.findByEmployeeEmployeeIdAndDate(employeeId, date);
-
 		if (attendances.isEmpty())
 			throw new AttendanceException(
 					Constants.ATTENDANCE_NOT_FOUND_WITH_EMPLOYEE_ID + employeeId + Constants.WITH_DATE + date);
-
 		return attendances;
-
 	}
 
 	@Override
@@ -124,7 +122,6 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 	@Override
 	public Attendance checkInAttendance(Integer employeeId) throws EmployeeException, AttendanceException {
-
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
 
@@ -153,20 +150,13 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 	@Override
 	public Attendance checkOutAttendance(Integer employeeId) throws AttendanceException, EmployeeException {
-		
-		if(!repoHelper.isEmployeeExist(employeeId))
-			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+employeeId);
-
+		if (!repoHelper.isEmployeeExist(employeeId))
+			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByEmployeeEmployeeIdDesc(employeeId);
-
 		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() != null) {
 			lastAttendance.setCheckOutTimestamp(LocalDateTime.now());
 		}
-
-		 throw new AttendanceException("You Have To Check In First To CheckOut");
+		throw new AttendanceException("You Have To Check In First To CheckOut");
 	}
-
-	
-
 
 }

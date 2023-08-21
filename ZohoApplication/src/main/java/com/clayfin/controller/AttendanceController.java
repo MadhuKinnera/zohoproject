@@ -19,13 +19,14 @@ import com.clayfin.entity.Attendance;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.service.AttendanceService;
+import com.clayfin.service.AttendanceServiceImpl;
 
 @RestController
 @RequestMapping("/attendance")
 public class AttendanceController {
 
 	@Autowired
-	private AttendanceService attendanceService;
+	private AttendanceServiceImpl attendanceService;
 
 	@PostMapping("/checkIn/{employeeId}")
 	ResponseEntity<GeneralResponse> checkInAttendance(@PathVariable Integer employeeId)
