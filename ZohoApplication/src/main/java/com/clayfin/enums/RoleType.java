@@ -2,6 +2,6 @@ package com.clayfin.enums;
 
 public enum RoleType {
 	
-	USER,ADMIN,HR,MANAGER
+	ROLE_USER,ROLE_ADMIN,ROLE_HR,ROLE_MANAGER
 
 }

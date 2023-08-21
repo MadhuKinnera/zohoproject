@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.clayfin.entity.Employee;
-import com.clayfin.exception.EmployeeException;
-import com.clayfin.exception.LeaveException;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.LeaveRepo;
 import com.clayfin.repository.TaskRepo;

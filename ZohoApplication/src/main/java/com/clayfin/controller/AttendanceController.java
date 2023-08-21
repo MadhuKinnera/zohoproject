@@ -1,70 +1,109 @@
 package com.clayfin.controller;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clayfin.dto.GeneralResponse;
+import com.clayfin.dto.ReguralizeDTO;
 import com.clayfin.entity.Attendance;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
+import com.clayfin.service.AttendanceService;
 
 @RestController
+@RequestMapping("/attendance")
 public class AttendanceController {
 
-	ResponseEntity<GeneralResponse> checkInAttendance(Integer employeeId)
+	@Autowired
+	private AttendanceService attendanceService;
+
+	@PostMapping("/checkIn/{employeeId}")
+	ResponseEntity<GeneralResponse> checkInAttendance(@PathVariable Integer employeeId)
 			throws EmployeeException, AttendanceException {
 
 		var generalResponse = new GeneralResponse();
 
+		generalResponse.setMessage("CheckedIn Success" + employeeId);
+		generalResponse.setData(attendanceService.checkInAttendance(employeeId));
+
 		return ResponseEntity.ok(generalResponse);
 	}
 
-	ResponseEntity<GeneralResponse> checkOutAttendance(Integer employeeId)
+	@PostMapping("/checkOut/{employeeId}")
+	ResponseEntity<GeneralResponse> checkOutAttendance(@PathVariable Integer employeeId)
 			throws EmployeeException, AttendanceException {
 
 		var generalResponse = new GeneralResponse();
 
+		generalResponse.setMessage("CheckedOut Success" + employeeId);
+		generalResponse.setData(attendanceService.checkOutAttendance(employeeId));
+
 		return ResponseEntity.ok(generalResponse);
 	}
 
-	ResponseEntity<GeneralResponse> getAttendanceByDateAndEmployeeId(LocalDate date, Integer employeeId)
-			throws EmployeeException, AttendanceException {
+	@GetMapping("/getAttendanceByDate/{date}/{employeeId}")
+	ResponseEntity<GeneralResponse> getAttendanceByDateAndEmployeeId(@PathVariable LocalDate date,
+			@PathVariable Integer employeeId) throws EmployeeException, AttendanceException {
 
 		var generalResponse = new GeneralResponse();
 
+		generalResponse.setMessage("Attendance Found By Date and Employee Id : " + date + " " + employeeId);
+		generalResponse.setData(attendanceService.getAttendanceByDateAndEmployeeId(date, employeeId));
+
 		return ResponseEntity.ok(generalResponse);
 	}
 
-	ResponseEntity<GeneralResponse> getAttendanceByEmployeeId(Integer employeeId)
+	@GetMapping("/getAttendance/{employeeId}")
+	ResponseEntity<GeneralResponse> getAttendanceByEmployeeId(@PathVariable Integer employeeId)
+			throws AttendanceException, EmployeeException {
+
+		var generalResponse = new GeneralResponse();
+		generalResponse.setMessage("Attendance Found By Employee Id" + employeeId);
+		generalResponse.setData(attendanceService.getAttendanceByEmployeeId(employeeId));
+
+		return ResponseEntity.ok(generalResponse);
+	}
+
+	@PutMapping("/updateAttendance/{attendanceId}")
+	ResponseEntity<GeneralResponse> updateAttendance(@PathVariable Integer attendanceId,
+			@RequestBody Attendance attendance) throws AttendanceException {
+
+		var generalResponse = new GeneralResponse();
+		generalResponse.setMessage("Attendance Update Success" + attendanceId);
+		generalResponse.setData(attendanceService.updateAttendance(attendanceId, attendance));
+
+		return ResponseEntity.ok(generalResponse);
+	}
+
+	@DeleteMapping("/deleteAttendance/{attendanceId}")
+	ResponseEntity<GeneralResponse> deleteAttendance(@PathVariable Integer attendanceId) throws AttendanceException {
+
+		var generalResponse = new GeneralResponse();
+
+		generalResponse.setMessage("Attendance Delete Success" + attendanceId);
+		generalResponse.setData(attendanceService.deleteAttendance(attendanceId));
+		return ResponseEntity.ok(generalResponse);
+	}
+
+	@PutMapping("/reguralize/{employeeId}")
+	ResponseEntity<GeneralResponse> regularize(Integer employeeId, @RequestBody ReguralizeDTO reguralizeDTO)
 			throws AttendanceException, EmployeeException {
 
 		var generalResponse = new GeneralResponse();
 
-		return ResponseEntity.ok(generalResponse);
-	}
-
-	ResponseEntity<GeneralResponse> updateAttendance(Integer attendanceId, Attendance attendance)
-			throws AttendanceException {
-
-		var generalResponse = new GeneralResponse();
-
-		return ResponseEntity.ok(generalResponse);
-	}
-
-	ResponseEntity<GeneralResponse> deleteAttendance(Integer attendanceId) throws AttendanceException {
-
-		var generalResponse = new GeneralResponse();
-
-		return ResponseEntity.ok(generalResponse);
-	}
-
-	ResponseEntity<GeneralResponse> regularize(Integer employeeId, LocalDate date, LocalDateTime fromTime,
-			LocalDateTime toTime) throws AttendanceException, EmployeeException {
-
-		var generalResponse = new GeneralResponse();
+		generalResponse.setMessage("Reguralization Success " + employeeId);
+		generalResponse.setData(attendanceService.regularize(employeeId, reguralizeDTO.getDate(),
+				reguralizeDTO.getFromTime(), reguralizeDTO.getToTime()));
 
 		return ResponseEntity.ok(generalResponse);
 	}
