@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clayfin.dto.GeneralResponse;
 import com.clayfin.entity.Task;
+import com.clayfin.enums.TaskStatus;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.TaskException;
 import com.clayfin.service.TaskService;
@@ -84,7 +85,7 @@ public class TaskController {
 
 	@GetMapping("/getAllTaskByEmployeeAndStatus/{employeeId}/{status}")
 	ResponseEntity<GeneralResponse> getAllTaskByStatusAndEmployeeId(@PathVariable Integer employeeId,
-			@PathVariable String status) throws EmployeeException, TaskException {
+			@PathVariable TaskStatus status) throws EmployeeException, TaskException {
 		var generalResponse = new GeneralResponse();
 
 		generalResponse.setData(taskService.getAllTaskByStatusAndEmployeeId(employeeId, status));
@@ -104,7 +105,7 @@ public class TaskController {
 
 	@GetMapping("/getAllTaskByManagerAndStatus/{managerId}/{status}")
 	ResponseEntity<GeneralResponse> getAllTaskByStatusAndManagerId(@PathVariable Integer managerId,
-			@PathVariable String status) throws EmployeeException, TaskException {
+			@PathVariable TaskStatus status) throws EmployeeException, TaskException {
 		var generalResponse = new GeneralResponse();
 
 		generalResponse.setData(taskService.getAllTaskByStatusAndManagerId(managerId, status));
@@ -119,6 +120,16 @@ public class TaskController {
 
 		generalResponse.setData(taskService.getAllTaskByDateAndManagerId(managerId, date));
 		generalResponse.setMessage("Tasks Found with Manager id:" + managerId + " with date: " + date);
+		return ResponseEntity.ok(generalResponse);
+	}
+	
+	
+	@PutMapping("/updateTaskStatus/{taskId}/{status}")
+	ResponseEntity<GeneralResponse> updateTaskStatus(@PathVariable Integer taskId,@PathVariable TaskStatus status)throws TaskException{
+		var generalResponse = new GeneralResponse();
+
+		generalResponse.setData(taskService.updateTaskStatus(taskId, status));
+		generalResponse.setMessage("Task Updated to "+status);
 		return ResponseEntity.ok(generalResponse);
 	}
 }

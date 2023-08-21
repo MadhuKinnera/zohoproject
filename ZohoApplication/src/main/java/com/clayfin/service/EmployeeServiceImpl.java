@@ -9,6 +9,7 @@ import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
 import com.clayfin.entity.LeaveRecord;
 import com.clayfin.entity.Task;
+import com.clayfin.enums.RoleType;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.LeaveException;
@@ -17,7 +18,10 @@ import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
 
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional
 public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
@@ -80,9 +84,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public Employee getEmployeeManager(Integer employeeId) throws EmployeeException {
 
-		return employeeRepo.findByManagerEmployeeId(employeeId)
-				.orElseThrow(() -> new EmployeeException(Constants.MANAGER_NOT_FOUND));
-
+		Employee employee = employeeRepo.findById(employeeId)
+				.orElseThrow(()->new EmployeeException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID+employeeId));
+		
+		if(employee.getManager()==null)
+			throw new EmployeeException("Manager Not Assigned To the Employee Id "+employeeId);
+		
+		return employee.getManager();
+	
 	}
 
 	@Override
@@ -132,6 +141,30 @@ public class EmployeeServiceImpl implements EmployeeService {
 		 
 		 return employee.getAttendances();
 
+	}
+
+	@Override
+	public Employee setManagerToEmployee(Integer employeeId, Integer managerId) throws EmployeeException {
+
+		Employee employee = employeeRepo.findById(employeeId)
+                                                .orElseThrow(()->new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+employeeId));
+		Employee manager = employeeRepo.findById(managerId)
+                .orElseThrow(()->new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+managerId));
+		
+		if(manager.getRole()!=RoleType.ROLE_MANAGER)
+            throw new EmployeeException("Manager Id Not Correct");
+		
+		if(managerId==employeeId)
+			throw new EmployeeException("Manager Himself Cannot me Manager");
+		
+		if(employee.getManager()!=null)
+			throw new EmployeeException("Employee Manager Already Exist");
+		
+		employee.setManager(manager);
+		
+		employeeRepo.save(employee);
+		
+		return employee;
 	}
 
 }

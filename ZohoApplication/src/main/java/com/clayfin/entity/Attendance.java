@@ -2,6 +2,7 @@ package com.clayfin.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +24,7 @@ public class Attendance{
 	private LocalDate date;
 	private LocalDateTime checkInTimestamp;
 	private LocalDateTime CheckOutTimestamp;
-	private Double spentHours;
+	private LocalTime spentHours;
 
 	@ManyToOne
 	@JoinColumn(name="employee_id")

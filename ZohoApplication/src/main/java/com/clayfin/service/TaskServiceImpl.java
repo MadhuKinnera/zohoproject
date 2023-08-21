@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.clayfin.entity.Employee;
 import com.clayfin.entity.Task;
+import com.clayfin.enums.RoleType;
 import com.clayfin.enums.TaskStatus;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.TaskException;
@@ -35,15 +36,14 @@ public class TaskServiceImpl implements TaskService {
 		Employee employee = employeeRepo.findById(employeeId)
 				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
 
-		Employee manager = employeeRepo.findById(managerId)
-				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
-		
-		if(!repoHelper.isValidEmployeeOfThisManager(managerId, employeeId))
-			throw new TaskException(Constants.NOT_VALID_MANAGER);
+		if (employee.getManager() == null)
+			throw new EmployeeException("No Manager Assinged to the Employee " + employeeId);
+
+		if (!employee.getManager().getEmployeeId().equals(managerId))
+			throw new EmployeeException("You are Not a Authorized Manager for Employee Id " + employeeId);
 
 		task.setAssignedTime(LocalDateTime.now());
 		task.setEmployee(employee);
-		task.setManager(manager);
 		task.setStatus(TaskStatus.PENDING);
 
 		return taskRepo.save(task);
@@ -89,18 +89,25 @@ public class TaskServiceImpl implements TaskService {
 
 	@Override
 	public List<Task> getAllTaskAssignedByManagerId(Integer managerId) throws EmployeeException, TaskException {
-		List<Task> tasks = taskRepo.findByManagerEmployeeId(managerId);
+
+		Employee manager = employeeRepo.findById(managerId)
+				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + managerId));
+
+		if (!manager.getRole().equals(RoleType.ROLE_MANAGER))
+			throw new EmployeeException(Constants.YOU_ARE_NOT_A_MANAGER);
+
+		List<Task> tasks = taskRepo.findByEmployeeManagerEmployeeId(managerId);
 
 		if (tasks.isEmpty())
-			throw new TaskException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID + managerId);
+			throw new TaskException(Constants.TASK_NOT_FOUND_WITH_MANAGER_ID + managerId);
 
 		return tasks;
 	}
 
 	@Override
-	public List<Task> getAllTaskByStatusAndEmployeeId(Integer employeeId, String status)
+	public List<Task> getAllTaskByStatusAndEmployeeId(Integer employeeId, TaskStatus status)
 			throws EmployeeException, TaskException {
-		List<Task> tasks = taskRepo.findByEmployeeEmployeeIdAndStatus(employeeId,status);
+		List<Task> tasks = taskRepo.findByEmployeeEmployeeIdAndStatus(employeeId, status);
 
 		if (tasks.isEmpty())
 			throw new TaskException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID + employeeId);
@@ -116,12 +123,19 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	@Override
-	public List<Task> getAllTaskByStatusAndManagerId(Integer managerId, String status)
+	public List<Task> getAllTaskByStatusAndManagerId(Integer managerId, TaskStatus status)
 			throws EmployeeException, TaskException {
-		List<Task> tasks = taskRepo.findByManagerEmployeeIdAndStatus(managerId,status);
+
+		Employee manager = employeeRepo.findById(managerId)
+				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + managerId));
+
+		if (!manager.getRole().equals(RoleType.ROLE_MANAGER))
+			throw new EmployeeException(Constants.YOU_ARE_NOT_A_MANAGER);
+
+		List<Task> tasks = taskRepo.findByEmployeeManagerEmployeeIdAndStatus(managerId, status);
 
 		if (tasks.isEmpty())
-			throw new TaskException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID + managerId);
+			throw new TaskException(Constants.TASK_NOT_FOUND_WITH_MANAGER_ID + managerId);
 
 		return tasks;
 	}
@@ -131,6 +145,19 @@ public class TaskServiceImpl implements TaskService {
 			throws EmployeeException, TaskException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public Task updateTaskStatus(Integer taskId, TaskStatus status) throws TaskException {
+		Task task = taskRepo.findById(taskId)
+				.orElseThrow(() -> new TaskException(Constants.TASK_NOT_FOUND_WITH_ID + taskId));
+
+		if (task.getStatus() != TaskStatus.PENDING)
+			throw new TaskException("Task Already Updated to " + task.getStatus());
+
+		task.setStatus(status);
+
+		return taskRepo.save(task);
 	}
 
 }

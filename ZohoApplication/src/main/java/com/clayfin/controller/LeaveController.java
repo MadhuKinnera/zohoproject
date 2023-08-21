@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clayfin.dto.GeneralResponse;
 import com.clayfin.entity.LeaveRecord;
+import com.clayfin.enums.LeaveStatus;
+import com.clayfin.enums.LeaveType;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.LeaveException;
 import com.clayfin.service.LeaveService;
@@ -88,7 +90,7 @@ public class LeaveController {
 
 	@GetMapping("/getLeavesByEmployeeIdAndStatus/{employeeId}/{status}")
 	ResponseEntity<GeneralResponse> getLeavesByEmployeeIdAndStatus(@PathVariable Integer employeeId,
-			@PathVariable String status) throws LeaveException, EmployeeException {
+			@PathVariable LeaveStatus status) throws LeaveException, EmployeeException {
 		var generalResponse = new GeneralResponse();
 
 		generalResponse.setMessage("Found Leaves By Employee Id and Status " + employeeId + " " + status);
@@ -99,7 +101,7 @@ public class LeaveController {
 
 	@GetMapping("/getLeavesByManagerIdAndStatus/{managerId}/{status}")
 	ResponseEntity<GeneralResponse> getLeavesByManagerIdAndStatus(@PathVariable Integer managerId,
-			@PathVariable String status) throws LeaveException, EmployeeException {
+			@PathVariable LeaveStatus status) throws LeaveException, EmployeeException {
 		var generalResponse = new GeneralResponse();
 
 		generalResponse.setMessage("Found Leaves By ManagerId and Status " + managerId + " " + status);
@@ -110,7 +112,7 @@ public class LeaveController {
 
 	@GetMapping("/getLeavesByEmployeeIdAndLeaveType/{employeeId}/{leaveType}")
 	ResponseEntity<GeneralResponse> getLeavesByEmployeeIdAndLeaveType(@PathVariable Integer employeeId,
-			@PathVariable String leaveType) throws LeaveException, EmployeeException {
+			@PathVariable LeaveType leaveType) throws LeaveException, EmployeeException {
 		var generalResponse = new GeneralResponse();
 
 		generalResponse.setMessage("Found Leaves By Employee Id and Leave Type " + employeeId + " " + leaveType);
@@ -121,10 +123,19 @@ public class LeaveController {
 
 	@GetMapping("/getLeavesByManagerIdAndLeaveType/{managerId}/{leaveType}")
 	ResponseEntity<GeneralResponse> getLeavesByManagerIdAndLeaveType(@PathVariable Integer managerId,
-			@PathVariable String leaveType) throws LeaveException, EmployeeException {
+			@PathVariable LeaveType leaveType) throws LeaveException, EmployeeException {
 		var generalResponse = new GeneralResponse();
 		generalResponse.setMessage("Found Leaves By Manager Id and Leave Type " + managerId + " " + leaveType);
 		generalResponse.setData(leaveService.getLeavesByManagerIdAndLeaveType(managerId, leaveType));
+
+		return ResponseEntity.ok(generalResponse);
+	}
+	
+	@PutMapping("/updateLeaveStatus/{leaveId}/{status}")
+	ResponseEntity<GeneralResponse> updateLeaveStatus(@PathVariable Integer leaveId,@PathVariable LeaveStatus status) throws LeaveException{
+		var generalResponse = new GeneralResponse();
+		generalResponse.setMessage("Updated Leave Status to  " +status);
+		generalResponse.setData(leaveService.updateLeaveStatus(leaveId, status));
 
 		return ResponseEntity.ok(generalResponse);
 	}

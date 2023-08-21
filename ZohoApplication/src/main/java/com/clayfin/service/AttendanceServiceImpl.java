@@ -2,6 +2,7 @@ package com.clayfin.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +94,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 					attendance.setCheckOutTimestamp(toTime);
 					attendance.setDate(date);
 					attendance.setEmployee(employee);
-					attendance.setSpentHours(hours.doubleValue());
+					LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(attendance.getCheckInTimestamp(),
+							attendance.getCheckOutTimestamp());
+
+					attendance.setSpentHours(spentTime);
 					return attendance;
 				} else {
 					Attendance nextAttendance = alreadyPresentAttendance.get(i + 1);
@@ -104,7 +108,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 						attendance.setCheckOutTimestamp(toTime);
 						attendance.setDate(date);
 						attendance.setEmployee(employee);
-						attendance.setSpentHours(hours.doubleValue());
+						LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(attendance.getCheckInTimestamp(),
+								attendance.getCheckOutTimestamp());
+
+						attendance.setSpentHours(spentTime);
 						return attendance;
 
 					} else {
@@ -155,20 +162,24 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 	@Override
 	public Attendance checkOutAttendance(Integer employeeId) throws AttendanceException, EmployeeException {
-		
-		if(!repoHelper.isEmployeeExist(employeeId))
-			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+employeeId);
 
-		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByEmployeeEmployeeIdDesc(employeeId);
+		if (!repoHelper.isEmployeeExist(employeeId))
+			throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
 
-		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() != null) {
+		Attendance lastAttendance = attendanceRepo.findTopByEmployeeEmployeeIdOrderByCheckInTimestampDesc(employeeId);
+
+		if (lastAttendance != null && lastAttendance.getCheckOutTimestamp() == null) {
 			lastAttendance.setCheckOutTimestamp(LocalDateTime.now());
-		}
 
-		 throw new AttendanceException("You Have To Check In First To CheckOut");
+			LocalTime spentTime = repoHelper.findTimeBetweenTimestamps(lastAttendance.getCheckInTimestamp(),
+					lastAttendance.getCheckOutTimestamp());
+
+			lastAttendance.setSpentHours(spentTime);
+
+		} else
+			throw new AttendanceException("You Have To Check In First To CheckOut");
+
+		return attendanceRepo.save(lastAttendance);
 	}
-
-	
-
 
 }

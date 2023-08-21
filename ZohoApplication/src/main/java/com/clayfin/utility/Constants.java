@@ -32,5 +32,9 @@ public interface Constants {
 	
 	String TASK_NOT_FOUND_WITH_EMPLOYEE_ID="Tasks Not Found With Employee Id ";
 	
+	String TASK_NOT_FOUND_WITH_MANAGER_ID="Tasks Not Found With Manager Id ";
+	
 	String NOT_VALID_MANAGER = "Manager Mismatched with the Employee ";
+	
+	String YOU_ARE_NOT_A_MANAGER ="You are Not a Manager";
 }

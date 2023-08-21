@@ -1,5 +1,9 @@
 package com.clayfin.utility;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,6 +46,16 @@ public class RepoHelper {
 			return true;
 
 		return false;
+	}
+
+	public LocalTime findTimeBetweenTimestamps(LocalDateTime fromTime, LocalDateTime toTime) {
+
+		Duration duration = Duration.between(fromTime, toTime);
+
+		int hours = (int) duration.toHours();
+		int minutes = (int) duration.toMinutes();
+
+		return LocalTime.of(hours, minutes);
 	}
 
 }

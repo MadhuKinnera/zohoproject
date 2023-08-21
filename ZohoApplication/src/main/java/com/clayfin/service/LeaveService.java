@@ -3,6 +3,8 @@ package com.clayfin.service;
 import java.util.List;
 
 import com.clayfin.entity.LeaveRecord;
+import com.clayfin.enums.LeaveStatus;
+import com.clayfin.enums.LeaveType;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.LeaveException;
 
@@ -20,16 +22,18 @@ public interface LeaveService {
 
 	List<LeaveRecord> getAllLeavesByManagerId(Integer managerId) throws EmployeeException, LeaveException;
 
-	List<LeaveRecord> getLeavesByEmployeeIdAndStatus(Integer employeeId, String status)
+	List<LeaveRecord> getLeavesByEmployeeIdAndStatus(Integer employeeId, LeaveStatus status)
 			throws LeaveException, EmployeeException;
 
-	List<LeaveRecord> getLeavesByManagerIdAndStatus(Integer managerId, String status)
+	List<LeaveRecord> getLeavesByManagerIdAndStatus(Integer managerId, LeaveStatus status)
 			throws LeaveException, EmployeeException;
 
-	List<LeaveRecord> getLeavesByEmployeeIdAndLeaveType(Integer employeeId, String leaveType)
+	List<LeaveRecord> getLeavesByEmployeeIdAndLeaveType(Integer employeeId, LeaveType leaveType)
 			throws LeaveException, EmployeeException;
 
-	List<LeaveRecord> getLeavesByManagerIdAndLeaveType(Integer managerId, String leaveType)
+	List<LeaveRecord> getLeavesByManagerIdAndLeaveType(Integer managerId, LeaveType leaveType)
 			throws LeaveException, EmployeeException;
+	
+	LeaveRecord updateLeaveStatus(Integer leaveId,LeaveStatus status) throws LeaveException;
 
 }

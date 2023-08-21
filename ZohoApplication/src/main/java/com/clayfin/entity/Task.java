@@ -33,9 +33,6 @@ public class Task {
 	@JoinColumn(name="assinged_employee")
 	private Employee employee;
 	
-	@ManyToOne
-	@JoinColumn(name="assinging_manager")
-	private Employee manager;
 	
 
 }

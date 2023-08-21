@@ -15,4 +15,6 @@ public interface AttendenceRepo extends JpaRepository<Attendance, Integer> {
 	List<Attendance> findByEmployeeEmployeeId(Integer employeeId);
 	
 	Attendance findTopByEmployeeEmployeeIdOrderByEmployeeEmployeeIdDesc(Integer employeeId);
+	
+	Attendance findTopByEmployeeEmployeeIdOrderByCheckInTimestampDesc(Integer employeeId);
 }

@@ -24,6 +24,8 @@ public interface EmployeeService {
 	Employee getEmployeeById(Integer employeeId) throws EmployeeException;
 	
 	Employee getEmployeeByEmail(String email ) throws EmployeeException;
+	
+	Employee setManagerToEmployee(Integer employeeId,Integer managerId) throws EmployeeException;
 
 	List<Employee> getAllEmployees() throws EmployeeException;
 

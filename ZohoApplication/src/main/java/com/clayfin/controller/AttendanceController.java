@@ -33,7 +33,7 @@ public class AttendanceController {
 
 		var generalResponse = new GeneralResponse();
 
-		generalResponse.setMessage("CheckedIn Success" + employeeId);
+		generalResponse.setMessage("CheckedIn Success with employee Id : " + employeeId);
 		generalResponse.setData(attendanceService.checkInAttendance(employeeId));
 
 		return ResponseEntity.ok(generalResponse);
@@ -45,7 +45,7 @@ public class AttendanceController {
 
 		var generalResponse = new GeneralResponse();
 
-		generalResponse.setMessage("CheckedOut Success" + employeeId);
+		generalResponse.setMessage("CheckedOut Success with employee Id " + employeeId);
 		generalResponse.setData(attendanceService.checkOutAttendance(employeeId));
 
 		return ResponseEntity.ok(generalResponse);

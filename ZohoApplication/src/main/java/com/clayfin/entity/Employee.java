@@ -3,6 +3,9 @@ package com.clayfin.entity;
 import java.util.List;
 
 import com.clayfin.enums.RoleType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,23 +33,30 @@ public class Employee {
 
 	private String email;
 
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private String password;
-
-	@ManyToOne
-	private Employee manager;
-
-	@OneToMany(mappedBy = "manager")
-	private List<Employee> subEmployees;
+	
 
 	@Enumerated(EnumType.STRING)
 	private RoleType role;
 
+
+	@ManyToOne
+	private Employee manager;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "manager")
+	private List<Employee> subEmployees;
+
+	@JsonIgnore
 	@OneToMany(mappedBy = "employee")
 	private List<Attendance> attendances;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "employee")
 	private List<LeaveRecord> leaveRecords;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "employee")
 	private List<Task> tasks;
 

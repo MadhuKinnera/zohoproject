@@ -52,6 +52,18 @@ public class EmployeeController {
 
 		return ResponseEntity.ok(generalResponse);
 	}
+	
+	@PutMapping("/updateManagerToEmployee/{employeeId}/{managerId}")
+	ResponseEntity<GeneralResponse> setManagerToEmployee(Integer employeeId,Integer managerId) throws EmployeeException{
+		
+		var generalResponse = new GeneralResponse();
+
+		generalResponse.setMessage("Employee Manager Updated");
+		generalResponse.setData(employeeService.setManagerToEmployee(employeeId, managerId));
+
+		return ResponseEntity.ok(generalResponse);
+	}
+
 
 	@DeleteMapping("/deleteEmployee/{employeeId}")
 	ResponseEntity<GeneralResponse> deleteEmployee(@PathVariable Integer employeeId) throws EmployeeException {
