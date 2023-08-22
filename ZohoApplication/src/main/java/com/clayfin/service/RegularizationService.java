@@ -16,19 +16,24 @@ public interface RegularizationService {
 
 	RegularizationRequest getRegularizationRequest(Integer regularizationReqeustId) throws RegularizationException;
 
-	RegularizationRequest updateRegularizationStatus(Integer regularizationId, RegularizationStatus status)
+	RegularizationRequest updateRegularizationStatusAndManagerId(Integer regularizationId, RegularizationStatus status,Integer managerId)
+			throws RegularizationException;
+	
+	
+	RegularizationRequest deleteRegularizationById(Integer regularizationId)
 			throws RegularizationException;
 
-	List<RegularizationRequest> getAllRegularizationRequestByEmployeeId(Integer employeeId)
+	
+	List<RegularizationRequest> getRegularizationRequestByEmployeeId(Integer employeeId)
 			throws RegularizationException;
 
-	List<RegularizationRequest> getAllRegularizationRequestByManagerId(Integer managerId)
+	List<RegularizationRequest> getRegularizationRequestByManagerId(Integer managerId)
 			throws RegularizationException;
 
-	List<RegularizationRequest> getAllRegularizationRequestByEmployeeIdAndStatus(Integer employeeId,RegularizationStatus status)
+	List<RegularizationRequest> getRegularizationRequestByEmployeeIdAndStatus(Integer employeeId,RegularizationStatus status)
 			throws RegularizationException;
 
-	List<RegularizationRequest> getAllRegularizationRequestByManagerIdAndStatus(Integer managerId,RegularizationStatus status)
+	List<RegularizationRequest> getRegularizationRequestByManagerIdAndStatus(Integer managerId,RegularizationStatus status)
 			throws RegularizationException;
 
 }

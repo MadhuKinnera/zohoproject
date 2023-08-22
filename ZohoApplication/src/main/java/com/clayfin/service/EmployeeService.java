@@ -39,4 +39,5 @@ public interface EmployeeService {
 	
 	List<Attendance> getAllAttendanceByEmployeeId(Integer employeeId) throws EmployeeException,AttendanceException;
 
+	Employee updateSkillSet(Integer employeeId,List<String> skills) throws EmployeeException;
 }

@@ -26,7 +26,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Autowired
 	private EmployeeRepo employeeRepo;
-	
+
 	@Autowired
 	private RepoHelper repoHelper;
 
@@ -85,13 +85,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public Employee getEmployeeManager(Integer employeeId) throws EmployeeException {
 
 		Employee employee = employeeRepo.findById(employeeId)
-				.orElseThrow(()->new EmployeeException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID+employeeId));
-		
-		if(employee.getManager()==null)
-			throw new EmployeeException("Manager Not Assigned To the Employee Id "+employeeId);
-		
+				.orElseThrow(() -> new EmployeeException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID + employeeId));
+
+		if (employee.getManager() == null)
+			throw new EmployeeException("Manager Not Assigned To the Employee Id " + employeeId);
+
 		return employee.getManager();
-	
+
 	}
 
 	@Override
@@ -109,37 +109,37 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public List<Task> getAllTaskMyEmployeeId(Integer employeeId) throws EmployeeException, TaskException {
-		
+
 		Employee employee = getEmployeeById(employeeId);
-	
-		 if(employee.getTasks().isEmpty()) {
-			 throw new TaskException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID+employeeId);
-		 }
-		 
-		 return employee.getTasks();
+
+		if (employee.getTasks().isEmpty()) {
+			throw new TaskException(Constants.TASK_NOT_FOUND_WITH_EMPLOYEE_ID + employeeId);
+		}
+
+		return employee.getTasks();
 	}
 
 	@Override
 	public List<LeaveRecord> getAllLeavesByEmployeeId(Integer employeeId) throws EmployeeException, LeaveException {
 		Employee employee = getEmployeeById(employeeId);
-		
-		 if(employee.getTasks().isEmpty()) {
-			 throw new LeaveException(Constants.LEAVE_NOT_FOUND_WITH_EMPLOYEE_ID+employeeId);
-		 }
-		 
-		 return employee.getLeaveRecords();
+
+		if (employee.getTasks().isEmpty()) {
+			throw new LeaveException(Constants.LEAVE_NOT_FOUND_WITH_EMPLOYEE_ID + employeeId);
+		}
+
+		return employee.getLeaveRecords();
 	}
 
 	@Override
 	public List<Attendance> getAllAttendanceByEmployeeId(Integer employeeId)
 			throws EmployeeException, AttendanceException {
 		Employee employee = getEmployeeById(employeeId);
-		
-		 if(employee.getTasks().isEmpty()) {
-			 throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_EMPLOYEE_ID+employeeId);
-		 }
-		 
-		 return employee.getAttendances();
+
+		if (employee.getTasks().isEmpty()) {
+			throw new AttendanceException(Constants.ATTENDANCE_NOT_FOUND_WITH_EMPLOYEE_ID + employeeId);
+		}
+
+		return employee.getAttendances();
 
 	}
 
@@ -147,24 +147,34 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public Employee setManagerToEmployee(Integer employeeId, Integer managerId) throws EmployeeException {
 
 		Employee employee = employeeRepo.findById(employeeId)
-                                                .orElseThrow(()->new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+employeeId));
+				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
 		Employee manager = employeeRepo.findById(managerId)
-                .orElseThrow(()->new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+managerId));
-		
-		if(manager.getRole()!=RoleType.ROLE_MANAGER)
-            throw new EmployeeException("Manager Id Not Correct");
-		
-		if(managerId==employeeId)
+				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + managerId));
+
+		if (manager.getRole() != RoleType.ROLE_MANAGER)
+			throw new EmployeeException("Manager Id Not Correct");
+
+		if (managerId == employeeId)
 			throw new EmployeeException("Manager Himself Cannot me Manager");
-		
-		if(employee.getManager()!=null)
+
+		if (employee.getManager() != null)
 			throw new EmployeeException("Employee Manager Already Exist");
-		
+
 		employee.setManager(manager);
-		
+
 		employeeRepo.save(employee);
-		
+
 		return employee;
+	}
+
+	@Override
+	public Employee updateSkillSet(Integer employeeId, List<String> skills) throws EmployeeException {
+		Employee employee = employeeRepo.findById(employeeId)
+				.orElseThrow(() -> new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId));
+
+		employee.setSkillSet(skills);
+
+		return employeeRepo.save(employee);
 	}
 
 }

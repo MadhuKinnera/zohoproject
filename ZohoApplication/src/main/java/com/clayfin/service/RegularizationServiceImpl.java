@@ -9,12 +9,14 @@ import org.springframework.stereotype.Service;
 
 import com.clayfin.dto.RegularizeDTO;
 import com.clayfin.entity.Attendance;
+import com.clayfin.entity.Employee;
 import com.clayfin.entity.RegularizationRequest;
 import com.clayfin.enums.RegularizationStatus;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.RegularizationException;
 import com.clayfin.repository.AttendenceRepo;
+import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.RegularizationRepo;
 import com.clayfin.utility.Constants;
 import com.clayfin.utility.RepoHelper;
@@ -30,6 +32,9 @@ public class RegularizationServiceImpl implements RegularizationService {
 
 	@Autowired
 	private RepoHelper repoHelper;
+	
+	@Autowired
+	private EmployeeRepo employeeRepo;
 
 	@Override
 	public RegularizationRequest addRegularizationRequest(RegularizeDTO request, Integer employeeId)
@@ -43,6 +48,10 @@ public class RegularizationServiceImpl implements RegularizationService {
 		if (request.getFromTime().getDayOfYear() != request.getToTime().getDayOfYear()
 				|| request.getDate().getDayOfYear() != request.getToTime().getDayOfYear())
 			throw new RegularizationException("Invalid Dates Provided ");
+		
+		
+		Employee employee = employeeRepo.findById(employeeId)
+				.orElseThrow(()->new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+employeeId));
 
 		var regularizeRequest = new RegularizationRequest();
 
@@ -51,6 +60,7 @@ public class RegularizationServiceImpl implements RegularizationService {
 		regularizeRequest.setCheckInTimestamp(request.getFromTime());
 		regularizeRequest.setCheckOutTimestamp(request.getToTime());
 		regularizeRequest.setDate(request.getDate());
+		regularizeRequest.setEmployee(employee);
 
 		return regularizationRepo.save(regularizeRequest);
 	}
@@ -65,12 +75,16 @@ public class RegularizationServiceImpl implements RegularizationService {
 	}
 
 	@Override
-	public RegularizationRequest updateRegularizationStatus(Integer regularizationId, RegularizationStatus status)
-			throws RegularizationException {
+	public RegularizationRequest updateRegularizationStatusAndManagerId(Integer regularizationId,
+			RegularizationStatus status, Integer managerId) throws RegularizationException {
 
 		RegularizationRequest request = regularizationRepo.findById(regularizationId)
 				.orElseThrow(() -> new RegularizationException(
 						"Regularization Request Not Found with Regularization Id " + regularizationId));
+
+		if (request.getEmployee() != null && request.getEmployee().getManager() != null
+				&& !request.getEmployee().getManager().getEmployeeId().equals(managerId))
+			throw new RegularizationException(Constants.NOT_VALID_MANAGER);
 
 		if (request.getStatus() != RegularizationStatus.PENDING)
 			throw new RegularizationException("Regularization Request Status Already In " + status);
@@ -98,7 +112,7 @@ public class RegularizationServiceImpl implements RegularizationService {
 	}
 
 	@Override
-	public List<RegularizationRequest> getAllRegularizationRequestByEmployeeId(Integer employeeId)
+	public List<RegularizationRequest> getRegularizationRequestByEmployeeId(Integer employeeId)
 			throws RegularizationException {
 
 		List<RegularizationRequest> requests = regularizationRepo.findByEmployeeEmployeeId(employeeId);
@@ -110,8 +124,11 @@ public class RegularizationServiceImpl implements RegularizationService {
 	}
 
 	@Override
-	public List<RegularizationRequest> getAllRegularizationRequestByManagerId(Integer managerId)
+	public List<RegularizationRequest> getRegularizationRequestByManagerId(Integer managerId)
 			throws RegularizationException {
+
+		if (!repoHelper.isValidManager(managerId))
+			throw new RegularizationException(Constants.NOT_VALID_MANAGER);
 
 		List<RegularizationRequest> requests = regularizationRepo.findByEmployeeManagerEmployeeId(managerId);
 
@@ -123,7 +140,7 @@ public class RegularizationServiceImpl implements RegularizationService {
 	}
 
 	@Override
-	public List<RegularizationRequest> getAllRegularizationRequestByEmployeeIdAndStatus(Integer employeeId,
+	public List<RegularizationRequest> getRegularizationRequestByEmployeeIdAndStatus(Integer employeeId,
 			RegularizationStatus status) throws RegularizationException {
 
 		List<RegularizationRequest> requests = regularizationRepo.findByEmployeeEmployeeIdAndStatus(employeeId, status);
@@ -136,14 +153,29 @@ public class RegularizationServiceImpl implements RegularizationService {
 	}
 
 	@Override
-	public List<RegularizationRequest> getAllRegularizationRequestByManagerIdAndStatus(Integer managerId,
+	public List<RegularizationRequest> getRegularizationRequestByManagerIdAndStatus(Integer managerId,
 			RegularizationStatus status) throws RegularizationException {
-		List<RegularizationRequest> requests = regularizationRepo.findByEmployeeManagerEmployeeIdAndStatus(managerId, status);
+
+		if (!repoHelper.isValidManager(managerId))
+			throw new RegularizationException(Constants.NOT_VALID_MANAGER);
+
+		List<RegularizationRequest> requests = regularizationRepo.findByEmployeeManagerEmployeeIdAndStatus(managerId,
+				status);
 
 		if (requests.isEmpty())
 			throw new RegularizationException(Constants.REGULARIZATION_REQUEST_NOT_FOUND);
 
 		return requests;
+	}
+
+	@Override
+	public RegularizationRequest deleteRegularizationById(Integer regularizationId)
+			throws RegularizationException {
+		RegularizationRequest request = getRegularizationRequest(regularizationId);
+
+		regularizationRepo.delete(request);
+
+		return request;
 	}
 
 }

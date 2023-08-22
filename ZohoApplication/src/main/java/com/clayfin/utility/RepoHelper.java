@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 import com.clayfin.dto.RegularizeDTO;
 import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
+import com.clayfin.enums.RoleType;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
 import com.clayfin.exception.RegularizationException;
+import com.clayfin.repository.AttendenceRepo;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.LeaveRepo;
 import com.clayfin.repository.TaskRepo;
-import com.clayfin.service.AttendanceService;
-import com.clayfin.service.RegularizationService;
 
 @Component
 public class RepoHelper {
@@ -34,10 +34,7 @@ public class RepoHelper {
 	private TaskRepo taskRepo;
 
 	@Autowired
-	private AttendanceService attendanceService;
-
-	@Autowired
-	private RegularizationService regularizationService;
+	private AttendenceRepo attendanceRepo;
 
 	public Boolean isEmployeeExist(Integer employeeId) {
 		return employeeRepo.findById(employeeId).isPresent();
@@ -100,8 +97,7 @@ public class RepoHelper {
 			if (spentHours.getHour() > 2)
 				throw new AttendanceException(Constants.NOT_REGURALIZABLE);
 
-			List<Attendance> alreadyPresentAttendance = attendanceService.getAttendanceByDateAndEmployeeId(date,
-					employeeId);
+			List<Attendance> alreadyPresentAttendance = attendanceRepo.findByEmployeeEmployeeIdAndDate(employeeId,date);
 
 			System.out.println(alreadyPresentAttendance.size() + "  attendances Found ");
 
@@ -122,6 +118,24 @@ public class RepoHelper {
 			return false;
 		}
 
+		return true;
+	}
+	
+	
+	public Boolean isValidManager(Integer managerId) {
+		
+		try {
+			
+		Employee employee=	employeeRepo.findById(managerId)
+			.orElseThrow(()->new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID+managerId));
+		
+		if(!employee.getRole().equals(RoleType.ROLE_MANAGER))
+			return false;
+			
+		}catch(Exception e) {
+			return false;
+		}
+		
 		return true;
 	}
 

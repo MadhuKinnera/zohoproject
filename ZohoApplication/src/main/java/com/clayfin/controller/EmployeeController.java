@@ -1,5 +1,7 @@
 package com.clayfin.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -159,6 +161,16 @@ public class EmployeeController {
 
 		generalResponse.setMessage("Found All Attendances Of a Employee with Id " + employeeId);
 		generalResponse.setData(employeeService.getAllAttendanceByEmployeeId(employeeId));
+
+		return ResponseEntity.ok(generalResponse);
+	}
+	
+	@PutMapping("/updateEmployeeSkillSet/{employeeId}/{skills}")
+	ResponseEntity<GeneralResponse> updateSkillSet(@PathVariable Integer employeeId,@PathVariable List<String> skills) throws EmployeeException{
+		var generalResponse = new GeneralResponse();
+
+		generalResponse.setMessage("SkillSet Updated for the Employee with Id " + employeeId);
+		generalResponse.setData(employeeService.updateSkillSet(employeeId, skills));
 
 		return ResponseEntity.ok(generalResponse);
 	}
