@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.clayfin.dto.GeneralResponse;
-import com.clayfin.dto.ReguralizeDTO;
+import com.clayfin.dto.RegularizeDTO;
 import com.clayfin.entity.Attendance;
 import com.clayfin.exception.AttendanceException;
 import com.clayfin.exception.EmployeeException;
@@ -96,7 +96,7 @@ public class AttendanceController {
 	}
 
 	@PutMapping("/reguralize/{employeeId}")
-	ResponseEntity<GeneralResponse> regularize(Integer employeeId, @RequestBody ReguralizeDTO reguralizeDTO)
+	ResponseEntity<GeneralResponse> regularize(Integer employeeId, @RequestBody RegularizeDTO reguralizeDTO)
 			throws AttendanceException, EmployeeException {
 
 		var generalResponse = new GeneralResponse();
