@@ -1,16 +1,25 @@
 package com.clayfin.utility;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.clayfin.dto.RegularizeDTO;
+import com.clayfin.entity.Attendance;
 import com.clayfin.entity.Employee;
+import com.clayfin.exception.AttendanceException;
+import com.clayfin.exception.EmployeeException;
+import com.clayfin.exception.RegularizationException;
 import com.clayfin.repository.EmployeeRepo;
 import com.clayfin.repository.LeaveRepo;
 import com.clayfin.repository.TaskRepo;
+import com.clayfin.service.AttendanceService;
+import com.clayfin.service.RegularizationService;
 
 @Component
 public class RepoHelper {
@@ -23,6 +32,12 @@ public class RepoHelper {
 
 	@Autowired
 	private TaskRepo taskRepo;
+
+	@Autowired
+	private AttendanceService attendanceService;
+
+	@Autowired
+	private RegularizationService regularizationService;
 
 	public Boolean isEmployeeExist(Integer employeeId) {
 		return employeeRepo.findById(employeeId).isPresent();
@@ -54,11 +69,60 @@ public class RepoHelper {
 
 		int hours = (int) duration.toHoursPart();
 		int minutes = (int) duration.toMinutesPart();
-		
-		System.out.println("Hours :"+ hours);
-		System.out.println("Minutes : "+minutes);
+
+		System.out.println("Hours :" + hours);
+		System.out.println("Minutes : " + minutes);
 
 		return LocalTime.of(hours, minutes);
+	}
+
+	public boolean isValidRegularizationRequest(RegularizeDTO dto, Integer employeeId)
+			throws RegularizationException, AttendanceException, EmployeeException {
+
+		try {
+			LocalDateTime fromTime = dto.getFromTime();
+			LocalDateTime toTime = dto.getToTime();
+
+			LocalDate date = dto.getDate();
+
+			int presentDayNumber = LocalDateTime.now().getDayOfYear();
+
+			int applieadDayNumber = date.getDayOfYear();
+			int daysDifference = Math.abs(Math.subtractExact(presentDayNumber, applieadDayNumber));
+			if (daysDifference > 4)
+				throw new RegularizationException("Regularization Request Is Acceptable Only for Past 4 days ");
+
+			LocalTime spentHours = findTimeBetweenTimestamps(fromTime, toTime);
+
+			if (!isEmployeeExist(employeeId))
+				throw new EmployeeException(Constants.EMPLOYEE_NOT_FOUND_WITH_ID + employeeId);
+
+			if (spentHours.getHour() > 2)
+				throw new AttendanceException(Constants.NOT_REGURALIZABLE);
+
+			List<Attendance> alreadyPresentAttendance = attendanceService.getAttendanceByDateAndEmployeeId(date,
+					employeeId);
+
+			System.out.println(alreadyPresentAttendance.size() + "  attendances Found ");
+
+			for (int i = 0; i < alreadyPresentAttendance.size() - 2; i++) {
+				if (alreadyPresentAttendance.get(i).getCheckOutTimestamp().isBefore(fromTime)
+						&& alreadyPresentAttendance.get(i + 1).getCheckInTimestamp().isAfter(toTime))
+					return true;
+			}
+
+			Integer lastAttendanceIndex = alreadyPresentAttendance.size() - 1;
+
+			LocalDateTime lastCheckOutTime = alreadyPresentAttendance.get(lastAttendanceIndex).getCheckOutTimestamp();
+
+			if (lastCheckOutTime != null && lastCheckOutTime.isBefore(fromTime))
+				return true;
+
+		} catch (Exception e) {
+			return false;
+		}
+
+		return true;
 	}
 
 }
